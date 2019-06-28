@@ -1,0 +1,110 @@
+---
+title: "Session 1 - Intro to R"
+author: "Aaron Scherf"
+date: "June 28, 2019"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+## Today's Packages
+
+
+## Today's Commands
+* `summary()`
+* `ls()`
+* `remove()`
+* `getwd()`
+* `setwd()`
+* `list.files()`
+* `list.dirs()`
+* `install.packages()`
+* `library()`
+* `read.csv()`
+* `head()`
+* `mean()`
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+Anything written inside of the code chunk (between the three back-ticks, which are usually found below the tilde ~ on a keyboard) can be run as R code by pressing the little green play button at the top right of the chunk (or pressing ctrl-enter for Windows, cmd-enter for Macs). 
+
+Everything else is text that will appear in the output document. You can format the text using Markdown, a common language shared by many programs (like GitHub and Jupyter Notebooks). Some common markdown formats are titles and subtitles (made by starting a line with a #, ##, or up to six #'s) and hyperlinks, such as [this link to a markdown cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet).
+
+Go ahead and try running the {r cars} chunk. A summary table of the system example dataset `cars` will appear, showing statistics for two variables, `speed` and `dist`. The `cars` dataset is pre-loaded with RStudio so it's good for introductory examples.
+
+
+
+## System Commands and File Paths
+
+One common way to start all of your R scripts and Markdown documents is with a command to clear the global environment. This clears away any variables (objects) saved to your workspace from previous commands. The first building block of the command is calling all the objects in your environment with the List Objects command `ls()`:
+
+```{r call objects}
+ls()
+```
+
+Unless you had previously saved something to the environment, you should get a `character(0)` result. If not, clear the environment with the following command:
+
+```{r clear}
+remove(list = ls())
+```
+
+The command is pretty intuitive. `ls()` calls the objects in your environment, the `list =` portion creates a list of the objects called by `ls()`, and the `remove()` function removes them.
+
+
+You may be asking, how do we save something to the environment? It wouldn't make much sense to clear it if it's empty. Let's save a simple object, like the number 2.
+
+```{r object}
+two = 2
+```
+
+You should see the object in your *Global Environment* window at the top right, with the object name `two` and its value `2`. We can call the object to print its values easily:
+
+```{r call_two}
+two
+```
+
+R prints the value `2` which is stored in the object, or variable, `two`. Note the index number to the left `[1]`, this indicates where in the object `two` the value is. You can call values within an object using their index position with the square bracket `[]`:
+
+```{r call_two_index}
+two[1]
+```
+
+Now that we have an object in our environment we can clear it again to start from scratch:
+
+```{r clear_again}
+remove(list = ls())
+```
+
+Now if we tried to call `two` R won't know what to do:
+
+```{r object_error, error=TRUE}
+two
+```
+
+See the error message? The object `two` is not found in the environment.
+
+
+
+* getwd()
+* setwd()
+* list.files()
+* list.dirs()
+* install.packages()
+* library()
+* read.csv()
+* head()
+* mean()
