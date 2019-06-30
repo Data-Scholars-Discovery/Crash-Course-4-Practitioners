@@ -12,6 +12,8 @@ output:
 
 ## Today's Commands
 * `summary()`
+* `print()`
+* `sqrt()`
 * `ls()`
 * `remove()`
 * `getwd()`
@@ -40,7 +42,7 @@ When you click the **Knit** button a document will be generated that includes bo
 summary(cars)
 ```
 
-Anything written inside of the code chunk (between the three back-ticks, which are usually found below the tilde ~ on a keyboard) can be run as R code by pressing the little green play button at the top right of the chunk (or pressing ctrl-enter for Windows, cmd-enter for Macs). 
+Anything written inside of the code chunk (between the three back-ticks, which are usually found below the tilde ~ on a keyboard) can be run as R code by pressing the little green play button at the top right of the chunk (or pressing ctrl-enter for Windows, cmd-enter for Macs). The play button will run the entire chunk, whereas clicking and pressing ctrl-enter will just run one line (unless you select multiple lines).
 
 Everything else is text that will appear in the output document. You can format the text using Markdown, a common language shared by many programs (like GitHub and Jupyter Notebooks). Some common markdown formats are titles and subtitles (made by starting a line with a #, ##, or up to six #'s) and hyperlinks, such as [this link to a markdown cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet).
 
@@ -48,56 +50,144 @@ Go ahead and try running the {r cars} chunk. A summary table of the system examp
 
 
 
-## System Commands and File Paths
+## Objects and the Global Environment
 
-One common way to start all of your R scripts and Markdown documents is with a command to clear the global environment. This clears away any variables (objects) saved to your workspace from previous commands. The first building block of the command is calling all the objects in your environment with the List Objects command `ls()`:
+R is an object-oriented programming language. This just means that much of our work is done by creating temporary objects out of data like numbers, character strings, files, etc. This lets us reference the same data multiple times in a script, quickly, without having to specify the source. Later, when we import data from a comma-separated value (CSV) file, we only have to import it once and save it as an object, then we can call on the data many times by using the object name.
 
-```{r call objects}
-ls()
+Technically, before any real programmers correct me, [according to Wikipedia R is "multi-paradigm"](https://en.wikipedia.org/wiki/R_(programming_language)), so a combination of different styles of languages (object oriented, procedural, etc). This doesn't really matter to us much now but I didn't want to mislead you.
+
+You can make objects (or run any code) using the console (similar to the command line, usually at the bottom of the RStudio interface). Most programmers prefer to write code in a script (like this R Markdown document) so that they can run it again or share it with others (the console by itself doesn't "save" your work in a file, though you can see a history of your commands).
+
+Let's get used to running commands inside our script, since this is generally best practice for [reproducibility](https://datacarpentry.org/rr-intro/02-toolkit/).
+
+```{r example_commands}
+2+2
+2+2 == 4
+print("hello_world")
+sqrt(4)
+sqrt(2+2)
 ```
 
-Unless you had previously saved something to the environment, you should get a `character(0)` result. If not, clear the environment with the following command:
+As you can see, commands in R can be arithmetic (mathematical), logical (testing if things are `TRUE` or `FALSE`), functions like `print()` or `sqrt()`, or a combination of these. Much of learning R is knowing different functions and how they fit together. Few people have memorized every possible function, so most of us rely extensively on the "Help" search on the bottom right window. 
 
-```{r clear}
-remove(list = ls())
+If you don't know how to do something, start typing that thing in the help search bar, chances are you'll find the function you need. If not, Google has fantastic resources from the global R-community, including StackOverflow answers. About 80% of your programming time, at least at the start, will be spent looking up functions or example code and adapting it to your needs. This isn't stealing or cheating (unless you take code and pretend it's yours) so please borrow liberally from other sources (like these guides)!
+
+When you execute a command, R will print out the result, as you saw above. This output can also be saved to an object and re-used later. Let's use the `sqrt(2+2)` example.
+
+
+```{r object_example}
+four = 2+2
+sqrt(four)
+two = sqrt(four)
 ```
 
-The command is pretty intuitive. `ls()` calls the objects in your environment, the `list =` portion creates a list of the objects called by `ls()`, and the `remove()` function removes them.
+Note how the `=` was used in the first line. In this case, `four` is just a string of letters until it is assigned to the output of the function `2+2`. By writing out `four` and assigning it with the `=` we are telling R to save the formula `2+2` in a shorthand (actually it's longer but you get the idea) that we named `four`. By itself, `four` means nothing arithmetically to R. We can see this if you try it with another character string.
 
-
-You may be asking, how do we save something to the environment? It wouldn't make much sense to clear it if it's empty. Let's save a simple object, like the number 2.
-
-```{r object}
-two = 2
+```{r letters_not_numbers, error=TRUE}
+six + 4
 ```
 
-You should see the object in your *Global Environment* window at the top right, with the object name `two` and its value `2`. We can call the object to print its values easily:
+`six` by itself means nothing to R, unless you assign it as an object.
+
+
+```{r math_with_words}
+six = 12 / 2
+six + four
+```
+
+Now R can add the two objects `four` and `six` because you assigned them values. If you assign other values to the same name, it will overwrite the object you made before, so be careful with re-using names.
+
+```{r overwrite}
+four = 3
+six + four
+```
+
+R won't judge you for making silly objects, like `four` being 3, but anyone you share your code with will, so be sure to use sensible names that would be comprehensible to others. This isn't required, necessarily, but it's good coding practice and will help make things easier for you and other programmers. We're all in this together, after all.
+
+
+### Introducing: The Global Environment
+
+Whenever you create an object by assigning values to a name, you should see the object in your *Global Environment* window at the top right. Here we will create a new object named `two` with a value `2`. Note how when you assign an object it won't print the value automatically. We can, however, call the object to print its values easily:
+
 
 ```{r call_two}
+two = 2
 two
 ```
 
-R prints the value `2` which is stored in the object, or variable, `two`. Note the index number to the left `[1]`, this indicates where in the object `two` the value is. You can call values within an object using their index position with the square bracket `[]`:
+R prints the value `2` which is stored in the object `two`. Note the index number to the left `[1]`. This indicates where in the object `two` the value is. There are many types of objects, like *lists* and *dataframes*, which we will discuss later. You can call values within an object using their index position with the square bracket `[]`:
+
 
 ```{r call_two_index}
 two[1]
 ```
 
-Now that we have an object in our environment we can clear it again to start from scratch:
+Your global environment keeps track of all the objects you've created within the R session. These objects are stored in your computer's temporary memory, so if you quit the R session (even if you save the script file) the objects won't stay. You should get a prompt asking if you want to save the *workspace image* to a *.`RData* file. You can save the objects in the environment to this type of file, to make opening and editing a script faster, but generally you won't have to since the script will be able to reproduce the environment if you run it in its entirety.
 
-```{r clear_again}
+
+### Clearing the Global Environment
+
+One common way to start all of your R scripts and Markdown documents is with a command to clear the global environment. This clears away any variables (objects) saved to your workspace from previous commands, which can help avoid errors when working with lots of objects. 
+
+The first building block of the command to clear the environment is calling all the objects in your environment with the List Objects command `ls()`:
+
+```{r list_objects}
+ls()
+```
+
+This should print out a character string of all the object names in your environment. We prefer to use the names rather than the values, since some objects can contain thousands (or millions) of values. 
+
+You can then clear the environment with the following command:
+
+```{r clear}
 remove(list = ls())
 ```
 
-Now if we tried to call `two` R won't know what to do:
+This command may look a bit obtuse at first, but it is pretty intuitive if you break it down. `ls()` calls the objects in your environment, the `list =` portion is an input that specifies the objects called by `ls()`, and the `remove()` function removes them. 
+
+Note how the "outer" function is `remove()`. `list =` is an argument being input to that function, while `ls()` is another function that uses the default arguments (and is therefore blank within the parentheses).
+
+If you run the `ls()` command with an empty environment it will report an empty `character(0)` string.
+
+
+```{r clear_again}
+ls()
+```
+
+The objects we assigned earlier are gone, so if we tried to call `two` R won't know what to do:
+
 
 ```{r object_error, error=TRUE}
 two
 ```
 
-See the error message? The object `two` is not found in the environment.
+See the error message? The object `two` is not found in the environment. Since R is object-oriented, however, you can scroll back up to the chunk that created the object `two`, run that, and then come call it with the "object_error" chunk above and it will print the value. Commands can be run out-of-order, though it's good practice to put them in the "right" order so that you can re-run the script later on.
+
+What if we only wanted to remove certain objects but not others? Let's make two objects and see.
 
 
+```{r two_objects}
+two = 2
+hello_world = "hello_world"
+```
+
+Now we have two objects: our `two` (which is numeric) and a new `hello_world` (which is a character string). We can call either using their name:
+
+
+```{r call_objects_again}
+two
+hello_world
+```
+
+If we just want to remove the `two` object we can use the `remove()` function. We don't need to use the `list =` argument since we are specifying particular objects.
+
+
+```{r remove_two}
+remove(two)
+```
+
+
+## Working Directory and File Paths
 
 * getwd()
 * setwd()
