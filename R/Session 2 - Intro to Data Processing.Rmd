@@ -1,0 +1,41 @@
+---
+title: "Data Science Crash Course 4 Practitioners"
+subtitle: "Session 2 - Intro to Data Processing"
+author: "Aaron Scherf"
+date: "July 19, 2019"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Today's Commands
+
+
+
+## 0. Intro to Data Processing
+
+There is a common adage among data scientists that at least 70% of your time in the program will be spent cleaning and processing data.
+
+Thus it is important to learn the functions and workflow of processing data early so you can become experienced (and therefore faster) at it.
+
+The typical steps in data processing can be summarized as follows, as explained in [this article from Towards Data Science](https://towardsdatascience.com/the-ultimate-guide-to-data-cleaning-3969843991d4):
+
+- Inspect Data Quality
+- Clean Data to Fix Anomalies
+- Verify Data Quality
+- Report on Changes to Dataset
+
+## Slide with R Output
+
+```{r cars, echo = TRUE}
+summary(cars)
+```
+
+## Slide with Plot
+
+```{r pressure}
+plot(pressure)
+```
+
