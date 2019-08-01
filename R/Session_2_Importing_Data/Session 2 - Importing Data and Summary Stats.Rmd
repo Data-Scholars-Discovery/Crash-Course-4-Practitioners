@@ -1,0 +1,483 @@
+---
+title: "Data Science Crash Course"
+author: "Aaron Scherf"
+date: "June 28, 2019"
+always_allow_html: yes
+output: 
+  revealjs::revealjs_presentation: 
+    theme: simple
+    highlight: haddock
+    center: true
+    transition: slide
+    css: reveal.css
+    self_contained: false
+  html_document:
+    df_print: paged
+    toc: yes
+    toc_depth: 2
+    toc_float: yes
+  slidy_presentation:
+    df_print: paged
+    slide_level: 2
+  beamer_presentation:
+    slide_level: 2
+  ioslides_presentation: default    
+subtitle: Session 2 - Importing Data and Summary Stats
+---
+
+
+```{r setup, include=FALSE}
+if (!require(knitr)) install.packages('knitr')
+require("knitr")
+knitr::opts_chunk$set(echo = TRUE)
+opts_knit$set(root.dir = "C:/Users/theaa/Desktop/Crash-Course-4-Practitioners")
+
+```
+
+## Contents
+- Review of Session 1
+- File Paths and Directories
+- Importing and Viewing CSV Files
+- Data Resources
+- Basic Descriptive Statistics
+- Conclusion and Review
+
+## Today's New Functions
+
+- `getwd()`
+- `setwd()`
+- `list.files()`
+- `paste()`
+- `list.dirs()`
+- `read.csv()`
+- `head()`
+- `datatable()`
+- `mean()`
+- `median()`
+- `var()`
+- `sd()`
+- `skim()`
+- `skim_to_wide()`
+
+# Review of Session 1
+## Step 1: 
+
+Clear your working environment to ensure there's no other data.
+
+
+```{r clear}
+remove(list = ls())
+```
+
+
+## Step 2:
+
+Create the `City_Data` object using the two series `city_names` and `population`.
+
+
+```{r create_citydata}
+city_names = c('San Francisco', 'New York City', 'Austin')
+population = c(884363, 8623000, 950715)
+City_Data = data.frame(city_names,population)
+head(City_Data)
+```
+
+## Step 3:
+
+Call the population of San Francisco using indexing (either with matrix notation or variable name)
+
+```{r indexing_example}
+City_Data[1,2]
+City_Data$population[1]
+```
+
+
+## Step 4:
+
+Remove the `City_Data` object.
+
+```{r remove_citydata}
+remove(City_Data)
+```
+
+
+## Step 5: Onwards!
+
+Great, we're ready to move on to the first part of Session 2, where we will learn how to set the working directory, import data from a CSV, and describe it with summary statistics!
+
+
+# File Paths and Directories
+## How does R Know Where to Look?
+
+You can make and define data files in R, but more often than not you will be importing data that were generated elsewhere. Importing files requires telling R where on your computer (or in the cloud) it is, which is usually defined by some kind of **filepath**.
+
+Folders on your computer are representations of these filepaths, often consisting of a nested list of paths or **directories**, culminating in the folder that contains the file you want. 
+
+You can constantly just reference the entire filepath to call a file, but (since programmers are lazy) we often shorten the path into an object and tell R to default towards a certain folder. This is called the **working directory**.
+
+
+## Retreive the Current Directory with `getwd()` Command
+
+If you just call a file with an import command without any filepath, R will begin by searching the working directory. R typically defaults to a folder associated with your R installation when you open a new session. You can always check where your current working directory is with the `getwd()` function.
+
+
+```{r get_wd}
+getwd()
+```
+
+Note that the output will be unique to each user (unless we share the same username).
+
+
+## Change the Working Directory with `setwd()`
+
+You can see that the filepath is expressed as a character string, with various formats for Windows, Macs, etc. Checking the current directory is helpful, but more often you want to start off a new script by setting the working directory to the folder you are working from using `setwd()`.
+
+
+```{r set_wd}
+setwd("C:/Users/theaa/Desktop/Crash-Course-4-Practitioners")
+```
+
+Note that you have to input the filepath as a character string, within the "quotation marks", so R knows it is text and not an object.
+
+## Organizing Your Filepaths
+
+It's often good practice to organize your projects in a familiar way. Everyone organizes their folder structures differently but it's common to have a `Data` folder and various output folders, like `Plots` or `Logs` (meaning log-files). 
+
+It's typical to set your working directory to the overall project folder (sometimes called the `Master` folder, though personally I think it sounds weird).
+
+After you set the project folder as your working directory, you can just specify the sub-folder (like `Data`) when you call the file to import data. You can also change the working directory during the script, which can help reproducibility by giving users more flexibility in naming their sub-folders, but you have to be careful to change the directory back if you want to import or export other data.
+
+
+## Seeing Your Files with `list.files()`
+
+You can always open the folder you are working in using the regular old file explorer on your computer, but as programmers we don't like to do things manually. Better to stay within the program, both for convenience and accuracy. 
+
+To view the names of files inside of your directory, you can use the `list.files()` function.
+
+
+```{r list_files}
+list.files()
+```
+
+## `list.files()` Default Arguments
+
+If you leave the part inside the parentheses blank (not passing any arguments into the function, calling it using the default settings), `list.files()` will list all of the folders and files in your working directory as text strings. 
+
+This is useful to navigate and change your working directory by drilling down into sub-folders, such as the `Data` folder.
+
+
+## Creating Sub-Folders as Objects
+
+We can make an object out of our `Data` folder filepath, taking a shortcut by saving our working directory as a character object first and then using `paste()` to combine the two character strings. We save this combination as a new object, `Data_Path`. Saving paths as objects like this helps when sharing your code.
+
+```{r data_path}
+Path = getwd()
+Path
+Data_Path = paste(Path,"/Data", sep = "")
+Data_Path
+```
+
+## The Path Less Travelled
+
+Let's break down what each of the four lines above is doing:
+
+- `Path = getwd()` is storing your current working directory as a character string object, `Path`.
+
+- `Path` is then called, leading to the first filepath you see in the printout.
+
+## Creating a New Path with `paste()`
+
+Then we combine the `Path` string with the string `"/Data"`. Remember Macs often use opposite slashes so be careful which operating system (OS) you are using.
+
+- `Data_Path` is a new object we are assigning to the combination of the `Path` object and a character string `"/Data"`. 
+
+- The `paste()` function takes both character strings as inputs as well as the argument `sep = ""`, which tells it to not put any separator between the two strings of text.
+
+- `Data_Path` is then called to print the second filepath.
+
+Now you have both a root directory `Path` and a specific `Data_Path` directory. You can then examine the files inside the `Data_Path` with `list.files()`.
+
+
+## List Files in the Data Directory
+
+
+```{r list_data_files}
+list.files(Data_Path)
+```
+
+Your `Data` folder should contain at least the `housing.csv` file. You may also have other folders in your directory, which it could be helpful to inspect in case you need to identify the folder-path to a particular sub-directory. 
+
+
+## Exploring more with `list.dirs()`
+
+`list.dirs()` is similar to `list.files()`, but it will list the folders and all of their sub-folders in your directory. If you leave the argument inside the parentheses blank it will default to your working directory. 
+
+If you are viewing the output in a slideshow, notice how the output runs off the screen. This is a common limitation of some presentation formats. It's often easier to read output within the RStudio interface. To avoid printing out too much output, we'll use indexing to restrict the output to just the first 10 results.
+
+
+```{r list_dirs}
+list.dirs()[1:10]
+```
+
+
+# Importing and Viewing CSV Files
+## Importing CSV Data with `read.csv()`
+
+Now that we can set and explore our directories, it's a simple process to import data from a CSV file. The function is easy to remember: `read.csv()`
+
+Let's import the `housing.csv` file that is in our data directory (if it isn't make sure to download the data from its [source on Kaggle](https://www.kaggle.com/camnugent/california-housing-prices/downloads/california-housing-prices.zip/1) or from the [Crash Course GitHub repo](https://github.com/Data-Scholars-Discovery/Crash-Course-4-Practitioners)).
+
+
+## Using GitHub through the Website
+
+If you haven't used GitHub before, just click the green **Clone or Download** button at the top right of the GitHub repo, then select **Download Zip**. GitHub is the standard open-source data sharing and file management system, built on its own programming language called Git.
+
+You don't need to know Git to use GitHub but eventually it will become necessary, so best to get in the practice of using GitHub now. For a basic intro to GitHub check out the [GitHub Guides on their website](https://guides.github.com/activities/hello-world/).
+
+
+## Reading in the CSV File
+
+Either way, make sure you have the `housing.csv` file in a folder called `Data` inside your main working directory before running the following command.
+
+
+```{r import_csv_ex}
+read.csv("Data/housing.csv")
+```
+
+
+## Importing Dataframes as Objects
+
+While the data runs off the slide, you will see that it looks like a typical dataframe, laid out spreadsheet-style with rows of observations and columns of variables. 
+
+But where is it in our global environment? We still need to save it as an object using an assignment operator. Let's use our `setwd()` function to change to our `Data` folder, read in our CSV to an object, then change the directory back. This is better practice, as it avoids "hard-coding" the `Data` folder inside our script.
+
+
+```{r save_csv_object}
+setwd(Data_Path)
+Housing = read.csv("housing.csv")
+setwd(Path)
+```
+
+
+## Exploring Data with `head()`
+
+Once you successfully import the csv file, it's a simple matter to call it again to explore the data or start calling summary statistics. 
+
+One quick way to examine the data, other than printing it all out like above, is the `head()` function. This prints out just the first 6 rows so you can see the different variables and their formats.
+
+
+## `head(Housing)` Output
+
+```{r head}
+head(Housing)
+```
+
+## Better R Output with `printr`
+
+If you try to read the above output, you will notice that the variable names don't line up with the values. This is because the default table output doesn't preserve tables in the nice orderly rows and columns we are used to.
+
+For more readable output, we can install another user-generated package, called `printr` (made by Yihui Xie, creator of `knitr`) using the `install.packages()` function. Don't forget to then `require()` the package.
+
+```{r install_printr}
+if (!require(printr)) install.packages('printr')
+require(printr)
+```
+
+## Using `printr` through `head()`
+
+After the package is loaded, it will automatically default the table output for `head()` and printing objects by calling them. The output is more readable, though in the presentation slides it now runs off the screen to the right.
+
+```{r printr_example}
+head(Housing)
+```
+
+## Interactive HTML Tables with `DT` Package
+
+Another option for printing tables in presentations is with an interactive HTML table, which can be made using the `DT` package (also by Yihui Xie). We first install and require it, then output a table with the `datatable()` function.
+
+```{r DT_package}
+if (!require(DT)) install.packages('DT')
+require(DT)
+```
+
+---
+
+```{r DT_table, echo=FALSE, warning=FALSE}
+datatable(Housing, options = list(scrollX = TRUE))
+```
+
+## Notes on the `datatable()` Function
+
+That beautiful, interactive HTML table is made possible by a few key options. First, we didn't include a slide title using the slide break `---`. 
+
+Then, we told `knitr` to not print the code in the slides using the code chunk option `echo=FALSE` in order to maximize slide space. 
+
+Finally, we include the parameter in the `datatable()` function `options = list(scrollX = TRUE)`. This creates the horizontal scrolling functionality that allows us to view all of the variables.
+
+This fancy table is not without cost, however, as it takes a while to load for larger data files. Best to use it for smaller output tables.
+
+
+# Data Resources
+## Finding New Data
+
+There is a lot of data out there but if you're interested in finding your own data we recommend searching through the following sources:
+
+- [Kaggle Datasets](https://www.kaggle.com/datasets)
+- [re3data Resources by Subject](https://www.re3data.org/browse/by-subject/)
+- [World Health Organization Global Health Observatory](https://www.who.int/gho/database/en/)
+- [World Bank Open Data](https://data.worldbank.org/)
+- [Google Public Data](https://www.google.com/publicdata/directory)
+- [Harvard Dataverse](https://dataverse.harvard.edu/)
+
+## Data File Types
+
+There are countless ways to store data files. Some are specific to particular programs (like `.dta` files in Stata) while others are shared by many programs (like comma separated value or `.csv` files). 
+
+For ease of sharing and reproducibility, we prefer to use `.csv` files for tabular data. R can handle plenty of other data types, like images or spatial data, but we will stick with "spreadsheet" data for now.
+
+# Basic Descriptive Statistics
+## Single Summary Stats
+
+Base R has functions to calculate most typical summary statistics on their own. These functions are useful to check individual statistics or if you want to use those statistics within another function (like finding the difference between two means).
+
+Most of these singular summary statistic functions require you to specify the particular variable you want (otherwise they will calculate the mean for an entire dataframe, across all values, or just give an error). The simplest way to do this is by calling its name after the `$` like so.
+
+
+```{r mean_housing}
+mean(Housing$total_rooms)
+```
+
+## Single Summary Stats Pt.2
+
+Other typical statistics include the median, variance, and standard deviation.
+
+```{r other_stats}
+median(Housing$median_income)
+var(Housing$median_income)
+sd(Housing$population)
+```
+
+## Multiple Summary Stats Using `summary()`
+
+The easiest way to generate summary stats is to calculate them all together with the `summary()` function, which we saw at the beginning of the lesson. Note the nice output, thanks to our `printr` package.
+
+
+```{r summary_housing}
+summary(Housing)
+```
+
+## Summary Table with DT Package
+
+As you can see, however, the summary table is too large to fit on a slide, though it is easier to read in the RStudio output. 
+
+We can make the output slightly more readable by saving the summary statistics as a dataframe and printing that using the `DT` package, which prints results in a searchable HTML widget table. 
+
+```{r summary_dataframe}
+Housing_Summary = data.frame(summary(Housing))
+```
+
+---
+
+```{r DT_table_example, echo=FALSE}
+datatable(Housing_Summary[,2:3], options = list(scrollX = TRUE))
+```
+
+## `summary()` Output
+
+You can see that by default `summary()` calls up the minimum, quartiles, median, mean and max for each numeric variable. 
+
+If you look carefully on the 7th page in the `DT` table, you'll notice a difference in output for `Housing$ocean_proximity`. Since it isn't a numeric variable (but rather a categorical or factor variable, based on character strings) it shows a count of observations in each category. You'll also notice it tells you how many missing values, or `NA's` are in each column: 207 in `Housing$total_bedrooms`. 
+
+We'll discuss missing data more next session!
+
+## Other Summary Statistic Packages
+
+Still, the table generated by `summary()` isn't very pretty output. Creating tables of summary statistics is a very common task for researchers of all types, so naturally there are tons of packages to make all sorts of tables. Check out [this blog post on ThatDataTho](https://thatdatatho.com/2018/08/20/easily-create-descriptive-summary-statistic-tables-r-studio/) for examples of all the myriad summary statistic tables. 
+
+[Another post from Dabbling with Data](https://dabblingwithdata.wordpress.com/2018/01/02/my-favourite-r-package-for-summarising-data/) gives my new favorite recommendation, the `skimr` package.
+
+
+## Installing `skimr`
+
+If it feels like we are installing a lot of packages, you're right. Default (or base) R is powerful but the beauty of the language is how many packages are out there. Bless the open source community. 
+
+
+```{r skimr_package, results=FALSE, warning=FALSE}
+if (!require(skimr)) install.packages('skimr')
+require(skimr)
+```
+
+
+## Summary Stats with `skim()`
+
+```{r table_example}
+skim(Housing)
+```
+
+## Understanding `skim()` Output
+
+By default, `skim()` prints out the number of observations and missing values for each variable, separated into their types. It looks best inside the RStudio interface.
+
+Factors also print the number of unique levels, followed by counts of the top four levels. 
+
+Integers display the mean, standard deviation, minimum (p0), first quartile (p25), median (p50), third quartile (p75), and maximum, followed by an awesome "sparkline" histogram showing the distribution. Numeric variables print the same.
+
+But again, our table runs off our slide. It looks good inside RStudio but we want nice presentation slides too! `datatable()` to the rescue again!
+
+---
+
+```{r skim_example2, echo = FALSE}
+skimmed_Housing <- skim(Housing)
+datatable(skimmed_Housing[,1:5], options = list(scrollX = TRUE))
+```
+
+## Utility of `skimr`
+
+In addition to its nice default output, one of the nice things about `skim()` is that it saves the output statistics in a "long" format, making it easier for many other functions to read (including the powerful `dplyr` package, foundation of the `tidyverse`, [an essential package for data management](https://www.analyticsvidhya.com/blog/2019/05/beginner-guide-tidyverse-most-powerful-collection-r-packages-data-science/) which we will explore next session).
+
+`skimr` also has a function for storing summary statistics in a more readable "wide" format, helpfully named `skim_to_wide()`, which we can again store in a scrollable `datatable()`.
+
+---
+
+
+```{r skim_wide, echo=FALSE}
+skimmed_Housing_wide <- skim_to_wide(Housing)
+datatable(skimmed_Housing_wide, options = list(scrollX = TRUE))
+```
+
+
+
+# Conclusion and Review
+## Congratulations, You're Doing Data Analysis!
+
+Look at that, only two short sessions in and you know how to perform most of the analysis required for data exploration! Not only can you import and view data tables, you can produce sharp tables of summary statistics in a presentation ready format!
+
+
+## Review
+
+- `getwd()`
+- `setwd()`
+- `list.files()`
+- `paste()`
+- `list.dirs()`
+- `read.csv()`
+- `head()`
+- `datatable()`
+- `mean()`
+- `median()`
+- `var()`
+- `sd()`
+- `skim()`
+- `skim_to_wide()`
+
+
+## Help is Your Best Friend
+
+If you don't recognize any of these or what they do please feel free to go back up and review. These are all "bread and butter" commands that you will be using quite a lot, so make sure to know what they are. 
+
+If you want to explore them in even more detail you can also look them up in the **Help** files search to the right. The help-file for each function will give you a description, list of possible arguments and their default values, and some example code. It's always good to check the help-file whenever you are using a new function!
+
+
+## Next Time on the **Crash Course**
+Great job in keeping up with the second session! Our next lesson will focus on data management and data processing, two absolutely key tasks for any data scientist.
+
