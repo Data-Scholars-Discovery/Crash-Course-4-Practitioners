@@ -13,7 +13,7 @@ Links:
 
 For more resources, including other online courses, check out the [Data Scholars Discovery Guide for R](https://data-scholars-discovery.github.io/contents/r)!
 
-## Data Science Crash Course Contents - Python Edition
+## Data Science Crash Course Contents - R Edition
 
 1. Intro to R and RStudio
 2. Importing Data from CSV Files and Summary Statistics
